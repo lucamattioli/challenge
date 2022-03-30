@@ -115,18 +115,12 @@ public class Core {
 
     public static String urlCall(String stringUrl) throws Exception {
 
-        doTrustCertificates();
-
         URL url = new URL(stringUrl);
-//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxymis.mbdom.mbgroup.ad", 8080)));
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
         try {
 
             conn.setRequestMethod("GET");
-
-//            OutputStream output = new BufferedOutputStream(conn.getOutputStream());
-//            output.write(body.getBytes());
-//            output.flush();
 
             String resp = readFullyAsString(conn.getInputStream(), "UTF-8");
 
@@ -146,38 +140,6 @@ public class Core {
             baos.write(buffer, 0, length);
         }
         return baos.toString(encoding);
-    }
-
-    private static void doTrustCertificates() throws Exception {
-        Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
-        TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
-                        return;
-                    }
-
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
-                        return;
-                    }
-                }
-        };
-
-        SSLContext sc = SSLContext.getInstance("SSL");
-        sc.init(null, trustAllCerts, new SecureRandom());
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        HostnameVerifier hv = new HostnameVerifier() {
-            public boolean verify(String urlHostName, SSLSession session) {
-                if (!urlHostName.equalsIgnoreCase(session.getPeerHost())) {
-                    System.out.println("Warning: URL host '" + urlHostName + "' is different to SSLSession host '" + session.getPeerHost() + "'.");
-                }
-                return true;
-            }
-        };
-        HttpsURLConnection.setDefaultHostnameVerifier(hv);
     }
 
 }
